@@ -11,9 +11,11 @@ import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodNode;
  
 /**
- * User: Matthew Bovard
- * Date: 7/13/11
- * Time: 6:54 PM
+ * 
+ *  Class that searches bytecode instructions using given search conditions.
+ * 
+ *  @author Matthew Bovard, modified by Waterwolf
+ * 
  */
 public class InstructionSearcher {
     private final InsnList list;

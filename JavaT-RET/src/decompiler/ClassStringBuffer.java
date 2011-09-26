@@ -1,5 +1,12 @@
 package decompiler;
 
+/**
+ * 
+ *  The buffer where decompiler classes output generated source
+ * 
+ * @author Waterwolf
+ *
+ */
 public class ClassStringBuffer {
     private final StringBuffer buffer;
     public final IndentationLevel iLevel;

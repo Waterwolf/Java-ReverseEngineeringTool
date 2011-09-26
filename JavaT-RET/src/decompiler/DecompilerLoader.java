@@ -17,7 +17,13 @@ import org.objectweb.asm.tree.ClassNode;
 import decompiler.md.ClassDecompilerImpl;
 import decompiler.md.MethodDecompilerImpl;
 
-
+/**
+ * 
+ *  The main class if you only want to use the decompiler
+ * 
+ * @author Waterwolf
+ *
+ */
 public class DecompilerLoader {
     
     public final static HashMap<String, ClassNode> classEntries = new HashMap<String, ClassNode>();

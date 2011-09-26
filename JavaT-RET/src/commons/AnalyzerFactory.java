@@ -5,6 +5,13 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 
+/**
+ * 
+ * Class containing bytecode search conditions and couple of helper methods to make them
+ * 
+ * @author Waterwolf
+ *
+ **/
 public class AnalyzerFactory implements Opcodes {
     public static InsnAnalyzer makeOpcodeCond(final int opcode) {
         return new InsnAnalyzer() {

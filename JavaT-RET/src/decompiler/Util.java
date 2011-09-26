@@ -5,7 +5,13 @@ import java.lang.reflect.Modifier;
 import decompiler.md.stackComponents.Ldc;
 import decompiler.md.stackComponents.Nameable;
 
-
+/**
+ * 
+ *  Utilities for various bytecode -> source actions
+ * 
+ * @author Waterwolf
+ *
+ */
 public class Util {
     public static String getModifierStrings(final int access) {
         return Modifier.toString(access);
