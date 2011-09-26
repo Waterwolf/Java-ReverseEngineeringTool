@@ -1,10 +1,13 @@
 package reverse.engineer;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.HashMap;
 
 import javax.swing.JTree;
@@ -25,14 +28,14 @@ public class ClassNavigation extends VisibleComponent implements FileDrop.Listen
     ClassContainer cc = null;
     
     DefaultMutableTreeNode treeRoot = new DefaultMutableTreeNode("Root");
-    JTree tree;
+    MyTree tree;
     
     public ClassNavigation(final FileChangeNotifier fcn) {
         super("ClassNavigation", true, false, true, true);
         
         this.fcn = fcn;
         
-        this.tree = new JTree(treeRoot);
+        this.tree = new MyTree(treeRoot);
         add(tree);
         
         this.tree.addTreeSelectionListener(new TreeSelectionListener() {
@@ -133,6 +136,58 @@ public class ClassNavigation extends VisibleComponent implements FileDrop.Listen
                 }
             }
         });
+        expandAll(tree, true);
+    }
+    
+    // If expand is true, expands all nodes in the tree.
+    // Otherwise, collapses all nodes in the tree.
+    public void expandAll(final JTree tree, final boolean expand) {
+        final TreeNode root = (TreeNode) tree.getModel().getRoot();
+
+        // Traverse tree from root
+        expandAll(tree, new TreePath(root), expand);
+    }
+
+    private void expandAll(final JTree tree, final TreePath parent,
+            final boolean expand) {
+        // Traverse children
+        final TreeNode node = (TreeNode) parent.getLastPathComponent();
+        if (node.getChildCount() >= 0) {
+            for (final Enumeration e = node.children(); e.hasMoreElements();) {
+                final TreeNode n = (TreeNode) e.nextElement();
+                final TreePath path = parent.pathByAddingChild(n);
+                expandAll(tree, path, expand);
+            }
+        }
+
+        // Expansion or collapse must be done bottom-up
+        if (expand) {
+            tree.expandPath(parent);
+        } else {
+            tree.collapsePath(parent);
+        }
+    }
+    
+    public class MyTree extends JTree {
+
+        DefaultMutableTreeNode treeRoot;
+        
+        public MyTree(final DefaultMutableTreeNode treeRoot) {
+            super(treeRoot);
+            this.treeRoot = treeRoot;
+        }
+        
+        @Override
+        public void paint(final Graphics g) {
+            super.paint(g);
+            if (treeRoot.getChildCount() < 1) {
+                g.setColor(new Color(0, 0, 0, 100));
+                g.fillRect(0, 0, getWidth(), getHeight());
+                g.setColor(Color.white);
+                g.drawString("Drag class/jar here", 10, 100);
+            }
+        }
+        
     }
     
 }

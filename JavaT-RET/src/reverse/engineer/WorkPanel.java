@@ -31,10 +31,9 @@ import decompiler.md.ClassDecompilerImpl;
 import decompiler.md.MethodDecompilerImpl;
 
 
-public class WorkPanel extends VisibleComponent implements FileDrop.Listener {
+public class WorkPanel extends VisibleComponent {
     
     FileChangeNotifier fcn;
-    ClassContainer cc = null;
     JTabbedPane tabs;
     
     ArrayList<String> workingOn = new ArrayList<String>();
@@ -80,43 +79,6 @@ public class WorkPanel extends VisibleComponent implements FileDrop.Listener {
         
         this.setLocation(250, (height - myHeight) / 2);
     
-        new FileDrop(this, this);
-        
-    }
-
-    @Override
-    public void filesDropped(final File[] files) {
-        if (files.length < 1)
-            return;
-        final HashMap<String, ClassNode> clazzez = new HashMap<String, ClassNode>();
-        for (final File f : files) {
-            final String fn = f.getName();
-            if (fn.endsWith(".jar")) {
-                
-                try {
-                    JarUtils.put(f, clazzez);
-                } catch (final IOException e) {
-                    e.printStackTrace();
-                }
-                
-            }
-            else if (fn.endsWith(".class")) {
-                
-                try {
-                    final ClassNode cn = JarUtils.getNode(JarUtils.getBytes(new FileInputStream(f)));
-                    clazzez.put(cn.name, cn);
-                } catch (final FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (final IOException e) {
-                    e.printStackTrace();
-                }
-                
-            }
-        }
-        if (clazzez.size() > 0) {
-            cc = new ClassContainer(clazzez);
-            fcn.workedFileSetChanged(cc);
-        }
     }
     
     int tabCount = 0;
@@ -174,10 +136,10 @@ public class WorkPanel extends VisibleComponent implements FileDrop.Listener {
             
             this.sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dcPanel, bcPanel);
             this.add(sp, BorderLayout.CENTER);
-            
-           
+            sp.setResizeWeight(0.5);
             
             loadDecompilations();
+            
         }
         
         public void loadDecompilations() {
