@@ -1,0 +1,55 @@
+*** RUNNING Decompiler BY Waterwolf VERSION 0.1 ***
+Decompiled Decompiler/test:
+package Decompiler;
+
+public synchronized class test {
+    
+    public static final java.lang.String[] forTesting;
+    
+    static {
+        0. iconst_3 
+        1. anewarray 
+        2. dup 
+        3. iconst_0 
+        4. ldc "hi"
+        5. aastore 
+        6. dup 
+        7. iconst_1 
+        8. ldc "what's"
+        9. aastore 
+        10. dup 
+        11. iconst_2 
+        12. ldc "up"
+        13. aastore 
+        14. putstatic Decompiler/test forTesting [Ljava/lang/String;
+        15. return 
+    }
+    public test() {
+        0. aload 0 // reference to self
+        1. invokespecial java/lang/Object <init> ()V
+        2. return 
+    }
+    public static void main(java.lang.String[] arg0) {
+        0. return 
+    }
+    public int testMethod(java.lang.String arg0, int arg1, org.objectweb.asm.Type arg2) {
+        0. bipush 42
+        1. iload 2 // reference to arg1
+        2. iadd 
+        3. ireturn 
+    }
+    public void forLoopTest() {
+        0. iconst_0 
+        1. istore 1
+        2. goto 7
+        3. getstatic java/lang/System out Ljava/io/PrintStream;
+        4. ldc "ASM is fun!"
+        5. invokevirtual java/io/PrintStream println (Ljava/lang/String;)V
+        6. iinc 
+        7. iload 1
+        8. bipush 10
+        9. if_icmplt 2 // if val1 less than val2 jump
+        10. return 
+    }
+}
+
