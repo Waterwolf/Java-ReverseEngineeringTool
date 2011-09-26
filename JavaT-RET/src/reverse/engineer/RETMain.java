@@ -8,7 +8,7 @@ import javax.swing.JFrame;
 
 import org.objectweb.asm.tree.ClassNode;
 
-public class RefactorMain extends JFrame implements FileChangeNotifier {
+public class RETMain extends JFrame implements FileChangeNotifier {
     
     public static final Dimension size = new Dimension(1200, 600);
     ArrayList<VisibleComponent> rfComps = new ArrayList<VisibleComponent>();
@@ -36,7 +36,7 @@ public class RefactorMain extends JFrame implements FileChangeNotifier {
     }
     
     public static void main(final String[] args) {
-        new RefactorMain().init();
+        new RETMain().init();
     }
 
     @Override

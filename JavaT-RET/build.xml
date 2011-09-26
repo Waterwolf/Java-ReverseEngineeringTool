@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="createJar">
+    <target name="createJar">
+    	<mkdir dir="dist" />
+        <jar destfile="dist/RET.jar">
+            <manifest>
+                <attribute name="Main-Class" value="reverse.engineer.RETMain"/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+</project>

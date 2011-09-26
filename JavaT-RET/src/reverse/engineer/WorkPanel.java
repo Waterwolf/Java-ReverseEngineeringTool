@@ -53,8 +53,6 @@ public class WorkPanel extends VisibleComponent implements FileDrop.Listener {
 
             @Override
             public void componentAdded(final ContainerEvent e) {
-                // TODO Auto-generated method stub
-                
             }
 
             @Override
@@ -67,8 +65,8 @@ public class WorkPanel extends VisibleComponent implements FileDrop.Listener {
 
         });
         
-        final int width = RefactorMain.size.width;
-        final int height = RefactorMain.size.height;
+        final int width = RETMain.size.width;
+        final int height = RETMain.size.height;
         
         final int myWidth = width - 200;
         final int myHeight = height;

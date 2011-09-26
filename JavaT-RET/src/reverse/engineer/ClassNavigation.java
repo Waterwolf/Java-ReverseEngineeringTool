@@ -56,7 +56,7 @@ public class ClassNavigation extends VisibleComponent implements FileDrop.Listen
             }
         });
         
-        final int height = RefactorMain.size.height;
+        final int height = RETMain.size.height;
         
         final Dimension mySize = new Dimension(240, height);
         
