@@ -1,0 +1,1 @@
+I do not want to release fernflower as a part of Java-RET because fernflower's license disallows distributing it as a part of other software. If you want to use fernflower and have access to the jar, simply place it to ./lib/fernflower/fernflower.jar and it will be automatically enabled when you start Java-RET next time.
