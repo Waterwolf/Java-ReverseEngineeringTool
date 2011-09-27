@@ -29,18 +29,6 @@ import decompiler.md.MethodDecompilerImpl;
 
 public class WorkPanel extends VisibleComponent {
     
-    public static Decompiler USED_DECOMPILER;
-    static {
-        try {
-            Class.forName("de.fernflower.main.decompiler.ConsoleDecompiler");
-            USED_DECOMPILER = Decompiler.Fernflower;
-        }
-        catch (final Exception e) {
-            USED_DECOMPILER = Decompiler.Own;
-        }
-        System.out.println("Using " + USED_DECOMPILER.name() + " for decompiling");
-    }
-    
     FileChangeNotifier fcn;
     JTabbedPane tabs;
     
@@ -49,7 +37,9 @@ public class WorkPanel extends VisibleComponent {
     public WorkPanel(final FileChangeNotifier fcn) {
         super("WorkPanel", true, false, true, true);
         
-        DefaultSyntaxKit.initKit();
+        if (Settings.FANCY_VIEWER) {
+            DefaultSyntaxKit.initKit();
+        }
         
         this.tabs = new JTabbedPane();
         this.fcn = fcn;
@@ -139,8 +129,10 @@ public class WorkPanel extends VisibleComponent {
             });
             bcPanel.add(bcScroll, BorderLayout.CENTER);
             
-            bytecode.setContentType("text/java");
-            decomp.setContentType("text/java");
+            if (Settings.FANCY_VIEWER) {
+                bytecode.setContentType("text/java");
+                decomp.setContentType("text/java");
+            }
             
             this.sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dcPanel, bcPanel);
             this.add(sp, BorderLayout.CENTER);
@@ -154,14 +146,17 @@ public class WorkPanel extends VisibleComponent {
             final ClassDecompiler decomp = new ClassDecompilerImpl();
             final MethodDecompiler bc_md = new BytecodeDecompiler();
             
-            if (USED_DECOMPILER == Decompiler.Fernflower) {
+            switch (Settings.USED_DECOMPILER) {
+            case Fernflower:
                 bytecode.setText(decomp.get(bc_md, cn));
                 final ClassDecompiler ff_dc = new FernflowerDecompiler();
                 this.decomp.setText(ff_dc.get(null, cn));
-            }
-            else if (USED_DECOMPILER == Decompiler.Own || USED_DECOMPILER == null) {
+                break;
+            case Own:
+            default:
                 final MethodDecompiler dc_md = new MethodDecompilerImpl();
                 this.decomp.setText(decomp.get(dc_md, cn));
+                break;
             }
         }
     }

@@ -15,6 +15,8 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import reverse.engineer.Settings;
+
 import commons.InstructionSearcher;
 
 import decompiler.ClassStringBuffer;
@@ -23,9 +25,6 @@ import decompiler.TypeAndName;
 
 
 public class BytecodeDecompiler implements MethodDecompiler {
-    
-    public final static boolean HELPERS = true;
-    public final static boolean SHOWTYPES = false;
     
     public static String[] opcodeStrings;
     public static String[] typeStrings;
@@ -84,7 +83,7 @@ public class BytecodeDecompiler implements MethodDecompiler {
             
             buffer.append(index++ + ". " + opcodeStrings[next.getOpcode()] + " ");
             
-            if (SHOWTYPES) {
+            if (Settings.SHOWTYPES) {
                 buffer.append("//" + typeStrings[next.getType()] + " ");
             }
             
@@ -99,7 +98,7 @@ public class BytecodeDecompiler implements MethodDecompiler {
             else if (next instanceof VarInsnNode) {
                 final VarInsnNode vin = (VarInsnNode) next;
                 buffer.append(vin.var);
-                if (HELPERS) {
+                if (Settings.HELPERS) {
                     if (vin.var == 0 && !Modifier.isStatic(mn.access)) {
                         buffer.append(" // reference to self");
                     }

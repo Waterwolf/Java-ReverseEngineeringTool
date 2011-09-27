@@ -1,10 +1,15 @@
 package reverse.engineer;
 
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 
 import org.objectweb.asm.tree.ClassNode;
 
@@ -32,7 +37,30 @@ public class RETMain extends JFrame implements FileChangeNotifier {
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setExtendedState(MAXIMIZED_BOTH);
         
+        constructMenu();
+        
         this.setVisible(true);
+    }
+    
+    public void constructMenu() {
+        
+        final JMenuBar menuBar = new JMenuBar();
+        
+        final JMenu menu = new JMenu("Window");
+        
+        final JMenuItem menuItem = new JMenuItem("Preferences");
+        
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent arg0) {
+                new SettingsGui();
+            }
+        });
+        
+        menu.add(menuItem);
+        menuBar.add(menu);
+        
+        this.setJMenuBar(menuBar);
     }
     
     public static void main(final String[] args) {
