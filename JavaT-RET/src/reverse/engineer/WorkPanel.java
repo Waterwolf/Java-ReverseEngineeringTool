@@ -3,17 +3,23 @@ package reverse.engineer;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
 
+import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import jsyntaxpane.DefaultSyntaxKit;
 
@@ -23,14 +29,18 @@ import decompiler.ClassDecompiler;
 import decompiler.MethodDecompiler;
 import decompiler.md.BytecodeDecompiler;
 import decompiler.md.ClassDecompilerImpl;
-import decompiler.md.FernflowerDecompiler;
 import decompiler.md.MethodDecompilerImpl;
+import decompiler.md.external.FernflowerDecompiler;
+import decompiler.md.external.JadDecompiler;
 
 
-public class WorkPanel extends VisibleComponent {
+public class WorkPanel extends VisibleComponent implements ActionListener {
     
     FileChangeNotifier fcn;
     JTabbedPane tabs;
+    
+    JPanel buttonPanel;
+    JButton refreshClass;
     
     ArrayList<String> workingOn = new ArrayList<String>();
     
@@ -44,7 +54,19 @@ public class WorkPanel extends VisibleComponent {
         this.tabs = new JTabbedPane();
         this.fcn = fcn;
         
-        this.add(tabs);
+        this.setLayout(new BorderLayout());
+        
+        this.add(tabs, BorderLayout.CENTER);
+        
+        buttonPanel = new JPanel(new FlowLayout());
+        
+        refreshClass = new JButton("Refresh class");
+        refreshClass.addActionListener(this);
+        
+        buttonPanel.add(refreshClass);
+        
+        buttonPanel.setVisible(false);
+        this.add(buttonPanel, BorderLayout.SOUTH);
         
         tabs.addContainerListener(new ContainerListener() {
 
@@ -60,6 +82,12 @@ public class WorkPanel extends VisibleComponent {
                 }
             }
 
+        });
+        tabs.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(final ChangeEvent arg0) {
+                buttonPanel.setVisible(tabs.getSelectedIndex() != -1);
+            }
         });
         
         final int width = RETMain.size.width;
@@ -150,17 +178,34 @@ public class WorkPanel extends VisibleComponent {
             final ClassDecompiler decomp = new ClassDecompilerImpl();
             final MethodDecompiler bc_md = new BytecodeDecompiler();
             
+            bytecode.setText(decomp.get(bc_md, cn));
+            
             switch (Settings.USED_DECOMPILER) {
             case Fernflower:
-                bytecode.setText(decomp.get(bc_md, cn));
                 final ClassDecompiler ff_dc = new FernflowerDecompiler();
                 this.decomp.setText(ff_dc.get(null, cn));
+                break;
+            case Jad:
+                
+                this.decomp.setText(new JadDecompiler().get(null, cn));
+                
                 break;
             case Own:
             default:
                 final MethodDecompiler dc_md = new MethodDecompilerImpl();
                 this.decomp.setText(decomp.get(dc_md, cn));
                 break;
+            }
+        }
+    }
+
+    @Override
+    public void actionPerformed(final ActionEvent arg0) {
+        final JButton src = (JButton) arg0.getSource();
+        if (src == refreshClass) {
+            final Component tabComp = tabs.getSelectedComponent();
+            if (tabComp != null) {
+                ((ClassViewer)tabComp).loadDecompilations();
             }
         }
     }

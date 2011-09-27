@@ -13,6 +13,7 @@ import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import reverse.engineer.Settings;
@@ -130,6 +131,10 @@ public class BytecodeDecompiler implements MethodDecompiler {
             else if (next instanceof IincInsnNode) {
                 final IincInsnNode iin = (IincInsnNode) next;
                 buffer.append("var " + iin.var + " by " + iin.incr);
+            }
+            else if (next instanceof TypeInsnNode) {
+                final TypeInsnNode tin = (TypeInsnNode) next;
+                buffer.append(tin.desc);
             }
             else {
                 /*

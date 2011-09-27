@@ -1,4 +1,4 @@
-package decompiler.md;
+package decompiler.md.external;
 
 import java.io.BufferedReader;
 import java.io.File;

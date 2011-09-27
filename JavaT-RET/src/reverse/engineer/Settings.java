@@ -15,7 +15,8 @@ import java.util.Properties;
 public class Settings {
     
     public static final File propertiesFile = new File(".jretProperties");
-
+    public static JadType jadType = null;
+    
     // BytecodeDecompiler
     @Changeable(name = "Bytecode helpers", shortName = "bytecodeHelpers")
     public static Boolean HELPERS = true;
@@ -107,7 +108,12 @@ public class Settings {
     
     static {
         
-        // TODO load settings file
+        final String osName = System.getProperty("os.name").toLowerCase();
+        if (osName.contains("win")) {
+            jadType = JadType.Windows;
+        } else if (osName.contains("linux")) {
+            jadType = JadType.Linux;
+        }
         
         try {
             loadProps();
@@ -121,9 +127,16 @@ public class Settings {
                 USED_DECOMPILER = Decompiler.Fernflower;
             }
             catch (final Exception e) {
-                USED_DECOMPILER = Decompiler.Own;
+                
+                if (jadType == null) {
+                    USED_DECOMPILER = Decompiler.Own;
+                }
+                else {
+                    USED_DECOMPILER = Decompiler.Jad;
+                }
             }
         }
+        
         
         System.out.println("Using " + USED_DECOMPILER.name() + " for decompiling");
     }
@@ -138,6 +151,7 @@ public class Settings {
     
     public enum Decompiler implements UseabilityCheck {
         Fernflower (fernflowerCheck()),
+        Jad (jadCheck()),
         Own (true);
         
         private final boolean isUsable;
@@ -155,6 +169,10 @@ public class Settings {
                 return false;
             }
         }
+        
+        private static boolean jadCheck() {
+            return jadType != null;
+        }
 
         @Override
         public boolean isUseable() {
@@ -166,6 +184,9 @@ public class Settings {
         public boolean isUseable();
     }
     
+    public enum JadType {
+        Windows, Linux
+    }
     
     public enum SyntaxHighlightType {
         None, Bytecode, Decompilation, All
