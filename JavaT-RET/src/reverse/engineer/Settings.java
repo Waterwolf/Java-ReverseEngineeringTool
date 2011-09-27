@@ -136,9 +136,36 @@ public class Settings {
         public boolean reqRestart() default false;
     }
     
-    public enum Decompiler {
-        Fernflower, Own
+    public enum Decompiler implements UseabilityCheck {
+        Fernflower (fernflowerCheck()),
+        Own (true);
+        
+        private final boolean isUsable;
+        
+        Decompiler(final boolean usable) {
+            this.isUsable = usable;
+        }
+        
+        private static boolean fernflowerCheck() {
+            try {
+                Class.forName("de.fernflower.main.decompiler.ConsoleDecompiler");
+                return true;
+            }
+            catch (final Exception e) {
+                return false;
+            }
+        }
+
+        @Override
+        public boolean isUseable() {
+            return isUsable;
+        }
     }
+    
+    public static interface UseabilityCheck {
+        public boolean isUseable();
+    }
+    
     
     public enum SyntaxHighlightType {
         None, Bytecode, Decompilation, All

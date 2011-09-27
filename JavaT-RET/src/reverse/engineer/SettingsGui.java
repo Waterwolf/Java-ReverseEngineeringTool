@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import reverse.engineer.Settings.Changeable;
+import reverse.engineer.Settings.UseabilityCheck;
 
 public class SettingsGui extends JFrame implements ActionListener {
 
@@ -63,12 +64,24 @@ public class SettingsGui extends JFrame implements ActionListener {
                     
                     final DefaultComboBoxModel model = new DefaultComboBoxModel();
                     
+                    Object sel = null;
                     try {
+                        
+                        sel = f.get(null);
+                        
                         final Method valuesMethod = clazz.getMethod("values");
                         final Object o = valuesMethod.invoke(null);
                         final Object[] objs = (Object[]) o;
+                        
+                        boolean uc = false;
+                        if (UseabilityCheck.class.isAssignableFrom(clazz)) {
+                            uc = true;
+                        }
+                        
                         for (final Object oo : objs) {
-                            model.addElement(oo);
+                            if (!uc || ((UseabilityCheck)oo).isUseable()) {
+                                model.addElement(oo);
+                            }
                         }
                      } catch (final SecurityException e) {
                         e.printStackTrace();
@@ -80,6 +93,7 @@ public class SettingsGui extends JFrame implements ActionListener {
                     
                     final MyComboBox combo = new MyComboBox(model);
                     combo.setEditable(false);
+                    combo.setSelectedItem(sel);
                     
                     combo.myField = f;
                     
