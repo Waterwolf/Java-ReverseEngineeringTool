@@ -9,6 +9,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -16,6 +17,7 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import commons.InstructionSearcher;
+
 import decompiler.ClassStringBuffer;
 import decompiler.MethodDecompiler;
 import decompiler.TypeAndName;
@@ -192,6 +194,10 @@ public class MethodDecompilerImpl implements MethodDecompiler {
             case Opcodes.IRETURN:
             case Opcodes.ARETURN:
                 buffer.appendnl("return " + Util.getValue(javaStack.pop()) + ";");
+                break;
+            case Opcodes.IF_ICMPLT:
+                final AbstractInsnNode nnext = ((JumpInsnNode)next).label.getNext();
+                System.out.println("linfo " + next);
                 break;
             }
             next = next.getNext();

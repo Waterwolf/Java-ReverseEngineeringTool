@@ -7,12 +7,7 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
@@ -28,10 +23,23 @@ import decompiler.ClassDecompiler;
 import decompiler.MethodDecompiler;
 import decompiler.md.BytecodeDecompiler;
 import decompiler.md.ClassDecompilerImpl;
+import decompiler.md.FernflowerDecompiler;
 import decompiler.md.MethodDecompilerImpl;
 
 
 public class WorkPanel extends VisibleComponent {
+    
+    public static Decompiler USED_DECOMPILER;
+    static {
+        try {
+            Class.forName("de.fernflower.main.decompiler.ConsoleDecompiler");
+            USED_DECOMPILER = Decompiler.Fernflower;
+        }
+        catch (final Exception e) {
+            USED_DECOMPILER = Decompiler.Own;
+        }
+        System.out.println("Using " + USED_DECOMPILER.name() + " for decompiling");
+    }
     
     FileChangeNotifier fcn;
     JTabbedPane tabs;
@@ -145,10 +153,20 @@ public class WorkPanel extends VisibleComponent {
         public void loadDecompilations() {
             final ClassDecompiler decomp = new ClassDecompilerImpl();
             final MethodDecompiler bc_md = new BytecodeDecompiler();
-            final MethodDecompiler dc_md = new MethodDecompilerImpl();
-            bytecode.setText(decomp.get(bc_md, cn));
-            this.decomp.setText(decomp.get(dc_md, cn));
-            //this.decomp.setText(decomp.get(dc_md, cn));
+            
+            if (USED_DECOMPILER == Decompiler.Fernflower) {
+                bytecode.setText(decomp.get(bc_md, cn));
+                final ClassDecompiler ff_dc = new FernflowerDecompiler();
+                this.decomp.setText(ff_dc.get(null, cn));
+            }
+            else if (USED_DECOMPILER == Decompiler.Own || USED_DECOMPILER == null) {
+                final MethodDecompiler dc_md = new MethodDecompilerImpl();
+                this.decomp.setText(decomp.get(dc_md, cn));
+            }
         }
+    }
+    
+    public enum Decompiler {
+        Fernflower, Own
     }
 }

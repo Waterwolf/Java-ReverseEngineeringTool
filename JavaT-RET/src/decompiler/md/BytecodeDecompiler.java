@@ -7,6 +7,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
@@ -15,6 +16,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import commons.InstructionSearcher;
+
 import decompiler.ClassStringBuffer;
 import decompiler.MethodDecompiler;
 import decompiler.TypeAndName;
@@ -23,8 +25,10 @@ import decompiler.TypeAndName;
 public class BytecodeDecompiler implements MethodDecompiler {
     
     public final static boolean HELPERS = true;
+    public final static boolean SHOWTYPES = true;
     
     public static String[] opcodeStrings;
+    public static String[] typeStrings;
     
     static {
         opcodeStrings = new String[256];
@@ -35,6 +39,25 @@ public class BytecodeDecompiler implements MethodDecompiler {
                     final int oi = ((Integer)oo);
                     if (oi < 256 && oi >= 0) {
                         opcodeStrings[oi] = f.getName().toLowerCase();
+                    }
+                }
+            } catch (final IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (final IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        typeStrings = new String[100];
+        for (final Field f : AbstractInsnNode.class.getFields()) {
+            if (!(f.getName().endsWith("_INSN"))) {
+                continue;
+            }
+            try {
+                final Object oo = f.get(null);
+                if (oo instanceof Integer) {
+                    final int oi = ((Integer)oo);
+                    if (oi < 256 && oi >= 0) {
+                        typeStrings[oi] = f.getName().toLowerCase();
                     }
                 }
             } catch (final IllegalArgumentException e) {
@@ -54,10 +77,16 @@ public class BytecodeDecompiler implements MethodDecompiler {
             
             if (next.getOpcode() == -1) {
                 buffer.appendnl(index++ + ". -1 !!");
+                next = is.getNext();
                 continue;
             }
             
+            
             buffer.append(index++ + ". " + opcodeStrings[next.getOpcode()] + " ");
+            
+            if (SHOWTYPES) {
+                buffer.append("//" + typeStrings[next.getType()] + " ");
+            }
             
             if (next instanceof FieldInsnNode) {
                 final FieldInsnNode fin = (FieldInsnNode) next;
@@ -98,6 +127,10 @@ public class BytecodeDecompiler implements MethodDecompiler {
             else if (next instanceof LdcInsnNode) {
                 final LdcInsnNode lin = (LdcInsnNode) next;
                 buffer.append("\"" + lin.cst + "\"");
+            }
+            else if (next instanceof IincInsnNode) {
+                final IincInsnNode iin = (IincInsnNode) next;
+                buffer.append("var " + iin.var + " by " + iin.incr);
             }
             else {
                 /*
