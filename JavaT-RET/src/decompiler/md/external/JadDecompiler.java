@@ -20,6 +20,17 @@ import decompiler.ClassDecompiler;
 import decompiler.MethodDecompiler;
 
 public class JadDecompiler implements ClassDecompiler {
+    
+    public static final String[] retroExitCodes = new String[] {
+        "no error (all done)",
+        "cannot list directory",
+        "file not found",
+        "file read error",
+        "unexpected EOF",
+        "invalid class file",
+        "cannot open file for writing",
+        "file write error"
+    };
 
     @Override
     public String get(final MethodDecompiler md, final ClassNode cn) {
@@ -47,19 +58,35 @@ public class JadDecompiler implements ClassDecompiler {
             e.printStackTrace();
         }
         
+        
+        
         final StringBuffer javaSrc = new StringBuffer();
         
         try {
             String execString = null;
+            String retroExecString = null;
             switch (Settings.jadType) {
             case Windows:
                 execString = "jad.exe"; // que?
+                retroExecString = "jadretro.exe";
                 break;
             case Linux:
                 execString = "./jad";
+                retroExecString = "./jadretro";
                 break;
             }
-            final Process p = Runtime.getRuntime().exec(execString + " -p tempDecClass.class", null, jadBase);
+            
+            Process p = Runtime.getRuntime().exec(retroExecString + " tempDecClass.class", null, jadBase);
+            
+            int exitCode = 0;
+            try {
+                exitCode = p.waitFor();
+            } catch (final InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("JadRetro exit: " + retroExitCodes[exitCode]);
+            
+            p = Runtime.getRuntime().exec(execString + " -p tempDecClass.class", null, jadBase);
             //final int exitCode = p.waitFor();
             final BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line;
