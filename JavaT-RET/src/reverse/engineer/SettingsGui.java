@@ -69,7 +69,6 @@ public class SettingsGui extends JFrame implements ActionListener {
                         final Object[] objs = (Object[]) o;
                         for (final Object oo : objs) {
                             model.addElement(oo);
-                            System.out.println(oo);
                         }
                      } catch (final SecurityException e) {
                         e.printStackTrace();
@@ -90,10 +89,8 @@ public class SettingsGui extends JFrame implements ActionListener {
                     System.out.println("Unidentified clazz " + clazz.getName());
                 }
             } catch (final IllegalArgumentException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             } catch (final IllegalAccessException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }

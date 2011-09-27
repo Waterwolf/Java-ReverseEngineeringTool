@@ -11,8 +11,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Properties;
 
-import reverse.engineer.WorkPanel.Decompiler;
-
 // NEVER USE PRIMTIVES IN THIS CLASS thanks :P
 public class Settings {
     
@@ -30,7 +28,7 @@ public class Settings {
     public static Decompiler USED_DECOMPILER = null;
     
     @Changeable(name = "Highlight syntax", shortName = "highlightSyntax", reqRestart = true)
-    public static Boolean FANCY_VIEWER = true;
+    public static SyntaxHighlightType SYNTAX_HIGHLIGHT_TYPE = SyntaxHighlightType.Decompilation;
     
     public static void loadProps() throws IOException {
         if (propertiesFile.exists()) {
@@ -136,5 +134,13 @@ public class Settings {
         public String shortName();
         public String desc() default "";
         public boolean reqRestart() default false;
+    }
+    
+    public enum Decompiler {
+        Fernflower, Own
+    }
+    
+    public enum SyntaxHighlightType {
+        None, Bytecode, Decompilation, All
     }
 }

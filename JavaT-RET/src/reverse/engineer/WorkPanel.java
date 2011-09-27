@@ -37,7 +37,7 @@ public class WorkPanel extends VisibleComponent {
     public WorkPanel(final FileChangeNotifier fcn) {
         super("WorkPanel", true, false, true, true);
         
-        if (Settings.FANCY_VIEWER) {
+        if (Settings.SYNTAX_HIGHLIGHT_TYPE != Settings.SyntaxHighlightType.None) {
             DefaultSyntaxKit.initKit();
         }
         
@@ -129,9 +129,13 @@ public class WorkPanel extends VisibleComponent {
             });
             bcPanel.add(bcScroll, BorderLayout.CENTER);
             
-            if (Settings.FANCY_VIEWER) {
+            if (Settings.SYNTAX_HIGHLIGHT_TYPE == Settings.SyntaxHighlightType.All) {
                 bytecode.setContentType("text/java");
                 decomp.setContentType("text/java");
+            } else if (Settings.SYNTAX_HIGHLIGHT_TYPE == Settings.SyntaxHighlightType.Decompilation) {
+                decomp.setContentType("text/java");
+            } else if (Settings.SYNTAX_HIGHLIGHT_TYPE == Settings.SyntaxHighlightType.Bytecode) {
+                bytecode.setContentType("text/java");
             }
             
             this.sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dcPanel, bcPanel);
@@ -159,9 +163,5 @@ public class WorkPanel extends VisibleComponent {
                 break;
             }
         }
-    }
-    
-    public enum Decompiler {
-        Fernflower, Own
     }
 }
