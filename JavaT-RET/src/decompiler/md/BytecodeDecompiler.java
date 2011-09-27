@@ -25,7 +25,7 @@ import decompiler.TypeAndName;
 public class BytecodeDecompiler implements MethodDecompiler {
     
     public final static boolean HELPERS = true;
-    public final static boolean SHOWTYPES = true;
+    public final static boolean SHOWTYPES = false;
     
     public static String[] opcodeStrings;
     public static String[] typeStrings;
