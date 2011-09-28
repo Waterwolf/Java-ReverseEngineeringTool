@@ -17,18 +17,24 @@ public class Settings {
     public static final File propertiesFile = new File(".jretProperties");
     public static JadType jadType = null;
     
+    // Main
+    public static Boolean START_FULLSCREEN = true;
+    
+    @Changeable(name = "Tooltip appearing time", shortName = "tooltipTime", desc = "Time before tooltips appear in milliseconds, -1 to disable tooltips", reqRestart = true)
+    public static Integer TOOLTIP_APPEAR_TIME = 500;
+    
     // BytecodeDecompiler
-    @Changeable(name = "Bytecode helpers", shortName = "bytecodeHelpers")
+    @Changeable(name = "Bytecode helpers", shortName = "bytecodeHelpers", desc = "Show bytecode instruction explanations")
     public static Boolean HELPERS = true;
     
-    @Changeable(name = "Bytecode instruction types", shortName = "bytecodeInsnTypes")
+    @Changeable(name = "Bytecode instruction types", shortName = "bytecodeInsnTypes", desc = "Show bytecode instruction types after bytecodes in bytecode view")
     public static Boolean SHOWTYPES = false;
     
     // WorkPanel
-    @Changeable(name = "Used decompiler", shortName = "usedDecompile", reqRestart = true)
+    @Changeable(name = "Used decompiler", shortName = "usedDecompile", desc = "Select decompiler to use with decompiler window", reqRestart = true)
     public static Decompiler USED_DECOMPILER = null;
     
-    @Changeable(name = "Highlight syntax", shortName = "highlightSyntax", reqRestart = true)
+    @Changeable(name = "Highlight syntax", shortName = "highlightSyntax", desc = "Select syntaxes to highlight. More syntaxes make code easier to read but also slow down the program.", reqRestart = true)
     public static SyntaxHighlightType SYNTAX_HIGHLIGHT_TYPE = SyntaxHighlightType.Decompilation;
     
     public static void loadProps() throws IOException {
@@ -52,6 +58,9 @@ public class Settings {
                         try {
                             if (fType == Boolean.class) {
                                 f.set(null, Boolean.valueOf(stringProp));
+                            }
+                            else if (fType == Integer.class) {
+                                f.set(null, Integer.valueOf(stringProp));
                             }
                             else if (Enum.class.isAssignableFrom(fType)) {
                                 

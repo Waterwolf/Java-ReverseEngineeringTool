@@ -35,6 +35,8 @@ import decompiler.md.external.JadDecompiler;
 
 
 public class WorkPanel extends VisibleComponent implements ActionListener {
+   
+    public static final Dimension size = new Dimension(950, RETMain.size.height);
     
     FileChangeNotifier fcn;
     JTabbedPane tabs;
@@ -90,21 +92,8 @@ public class WorkPanel extends VisibleComponent implements ActionListener {
             }
         });
         
-        final int width = RETMain.size.width;
-        final int height = RETMain.size.height;
-        
-        final int myWidth = width - 200;
-        final int myHeight = height;
-        
-        final Dimension mySize = new Dimension(myWidth, myHeight);
-        
         this.setVisible(true);
         
-        this.setSize(mySize);
-        this.setPreferredSize(mySize);
-        
-        this.setLocation(250, (height - myHeight) / 2);
-    
     }
     
     int tabCount = 0;
@@ -124,6 +113,10 @@ public class WorkPanel extends VisibleComponent implements ActionListener {
         addWorkingFile(name, cn);
     }
     
+    public ClassViewer getCurrentClass() {
+        return (ClassViewer) tabs.getSelectedComponent();
+    }
+    
     public class ClassViewer extends JPanel {
         String name;
         ClassNode cn;
@@ -131,6 +124,8 @@ public class WorkPanel extends VisibleComponent implements ActionListener {
         JSplitPane sp;
         
         JEditorPane bytecode = new JEditorPane(), decomp = new JEditorPane();
+        
+        JScrollPane bcScroll;
         
         public ClassViewer(final String name, final ClassNode cn) {
             this.name = name;
@@ -145,7 +140,7 @@ public class WorkPanel extends VisibleComponent implements ActionListener {
             dcPanel.add(dcScroll, BorderLayout.CENTER);
             
             final JPanel bcPanel = new JPanel(new BorderLayout());
-            final JScrollPane bcScroll = new JScrollPane(bytecode);
+            bcScroll = new JScrollPane(bytecode);
             //bcScroll.setVisible(false);
             bcScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
             bcScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -196,6 +191,9 @@ public class WorkPanel extends VisibleComponent implements ActionListener {
                 this.decomp.setText(decomp.get(dc_md, cn));
                 break;
             }
+            
+            this.decomp.setCaretPosition(0);
+            
         }
     }
 
@@ -208,5 +206,10 @@ public class WorkPanel extends VisibleComponent implements ActionListener {
                 ((ClassViewer)tabComp).loadDecompilations();
             }
         }
+    }
+
+    @Override
+    public Dimension getWantedSize() {
+        return size;
     }
 }

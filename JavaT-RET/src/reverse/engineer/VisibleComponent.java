@@ -1,5 +1,7 @@
 package reverse.engineer;
 
+import java.awt.Dimension;
+
 import javax.swing.JInternalFrame;
 
 import org.objectweb.asm.tree.ClassNode;
@@ -9,6 +11,8 @@ public abstract class VisibleComponent extends JInternalFrame implements FileCha
     public VisibleComponent(final String title, final boolean one, final boolean two, final boolean three, final boolean four) {
         super(title, one, two, three, four);
     }
+    
+    public abstract Dimension getWantedSize();
     
     @Override
     public void workedFileSetChanged(final ClassContainer cc) {}

@@ -84,6 +84,7 @@ public class JadDecompiler implements ClassDecompiler {
             } catch (final InterruptedException e) {
                 e.printStackTrace();
             }
+            
             System.out.println("JadRetro exit: " + retroExitCodes[exitCode]);
             
             p = Runtime.getRuntime().exec(execString + " -p tempDecClass.class", null, jadBase);

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
 
+import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -24,6 +25,8 @@ import reverse.engineer.ClassContainer.CCVisitor;
 
 public class ClassNavigation extends VisibleComponent implements FileDrop.Listener {
     
+    public static final Dimension size = new Dimension(200, RETMain.size.height);
+    
     FileChangeNotifier fcn;
     ClassContainer cc = null;
     
@@ -36,7 +39,7 @@ public class ClassNavigation extends VisibleComponent implements FileDrop.Listen
         this.fcn = fcn;
         
         this.tree = new MyTree(treeRoot);
-        add(tree);
+        add(new JScrollPane(tree));
         
         this.tree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
@@ -53,23 +56,20 @@ public class ClassNavigation extends VisibleComponent implements FileDrop.Listen
                 }
                 final ClassNode fN = cc.getClass(nameBuffer.toString());
                 if (fN != null) {
-                    fcn.workedFileChanged(nameBuffer.toString(), fN);
-                    System.out.println("Work file changed");
+                    switchWorkedFile(nameBuffer.toString(), fN);
                 }
             }
         });
         
-        final int height = RETMain.size.height;
-        
-        final Dimension mySize = new Dimension(240, height);
-        
         this.setVisible(true);
-        
-        this.setSize(mySize);
-        this.setPreferredSize(mySize);
         
         new FileDrop(this, this);
         
+    }
+    
+    public void switchWorkedFile(final String name, final ClassNode node) {
+        fcn.workedFileChanged(name, node);
+        System.out.println("Work file changed");
     }
 
     @Override
@@ -136,7 +136,8 @@ public class ClassNavigation extends VisibleComponent implements FileDrop.Listen
                 }
             }
         });
-        expandAll(tree, true);
+        tree.expandPath(new TreePath(tree.getModel().getRoot()));
+        //expandAll(tree, true);
     }
     
     // If expand is true, expands all nodes in the tree.
@@ -188,6 +189,11 @@ public class ClassNavigation extends VisibleComponent implements FileDrop.Listen
             }
         }
         
+    }
+
+    @Override
+    public Dimension getWantedSize() {
+        return size;
     }
     
 }

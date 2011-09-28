@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 
 import javax.swing.ComboBoxModel;
@@ -16,6 +17,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -28,6 +30,7 @@ import reverse.engineer.Settings.UseabilityCheck;
 public class SettingsGui extends JFrame implements ActionListener {
 
     public static final Dimension size = new Dimension(800, 400);
+    public static SettingsGui visibleInstance = null;
 
     JPanel allPanel = new JPanel();
     
@@ -48,7 +51,10 @@ public class SettingsGui extends JFrame implements ActionListener {
         allPanel.setLayout(new GridLayout(settingFields.size() + 1, 2));
 
         for (final Field f : settingFields) {
-            allPanel.add(new JLabel(f.getAnnotation(Changeable.class).name()));
+            final Changeable annotation = f.getAnnotation(Changeable.class);
+            final JLabel nameLabel = new JLabel(annotation.name());
+            nameLabel.setToolTipText(annotation.desc());
+            allPanel.add(nameLabel);
             final Class<?> clazz = f.getType();
             try {
                 if (clazz == Boolean.class) {
@@ -56,8 +62,12 @@ public class SettingsGui extends JFrame implements ActionListener {
                     check.myField = f;
                     allPanel.add(check);
                     check.setSelected(f.get(null) == Boolean.TRUE);
+                } else if (clazz == Integer.class) {
+                    final MyNumberField field = new MyNumberField((Integer) f.get(null));
+                    field.myField = f;
+                    allPanel.add(field);
                 } else if (clazz == String.class) {
-                    final MyTextField field = new MyTextField((String) f.get(null));
+                    final MyTextField field = new MyTextField(f.get(null));
                     field.myField = f;
                     allPanel.add(field);
                 } else if (Enum.class.isAssignableFrom(clazz)) {
@@ -121,7 +131,48 @@ public class SettingsGui extends JFrame implements ActionListener {
         this.add(allPanel);
 
         this.setVisible(true);
+        visibleInstance = this;
     }
+    
+    @Override
+    public void dispose() {
+        super.dispose();
+        visibleInstance = null;
+    }
+    
+    @Override
+    public void setVisible(final boolean visible) {
+        // let's handle visibility...
+        if (!visible || !isVisible()) { // have to check this condition simply
+                                        // because super.setVisible(true)
+                                        // invokes toFront if frame was already
+                                        // visible
+            super.setVisible(visible);
+        }
+        // ...and bring frame to the front.. in a strange and weird way
+        if (visible) {
+            int state = super.getExtendedState();
+            state &= ~JFrame.ICONIFIED;
+            super.setExtendedState(state);
+            super.setAlwaysOnTop(true);
+            super.toFront();
+            super.requestFocus();
+            super.setAlwaysOnTop(false);
+        }
+    }
+
+    @Override
+    public void toFront() {
+        //super.setVisible(true);
+        int state = super.getExtendedState();
+        state &= ~JFrame.ICONIFIED;
+        super.setExtendedState(state);
+        super.setAlwaysOnTop(true);
+        super.toFront();
+        super.requestFocus();
+        super.setAlwaysOnTop(false);
+    }
+
     
     public static void main(final String[] args) {
         new SettingsGui();
@@ -129,12 +180,28 @@ public class SettingsGui extends JFrame implements ActionListener {
     
     private class MyTextField extends JTextField implements MyComponent {
         public Field myField;
-        public MyTextField(final String s) {
-            super(s);
+        public Object value;
+        public MyTextField(final Object value) {
+            this.setValue(value);
         }
         @Override
         public Field getMyField() {
             return myField;
+        }
+        
+        @Override
+        public void setText(final String s) {
+            super.setText(s);
+            this.value = s;
+        }
+        
+        public void setValue(final Object o) {
+            this.value = o;
+            this.setText(o.toString());
+        }
+        
+        public Object getValue() {
+            return this.value;
         }
     }
     
@@ -151,6 +218,18 @@ public class SettingsGui extends JFrame implements ActionListener {
         public Field myField;
         public MyComboBox(final ComboBoxModel model) {
             super(model);
+        }
+        @Override
+        public Field getMyField() {
+            return myField;
+        }
+    }
+    
+    private class MyNumberField extends JFormattedTextField implements MyComponent {
+        public Field myField;
+        public MyNumberField(final Integer integer) {
+            super(NumberFormat.getInstance());
+            this.setValue(integer);
         }
         @Override
         public Field getMyField() {
@@ -189,7 +268,17 @@ public class SettingsGui extends JFrame implements ActionListener {
                     val = ((MyCheckBox)c).isSelected();
                 }
                 else if (c instanceof MyTextField) {
-                    val = ((MyTextField)c).getText();
+                    val = ((MyTextField)c).getValue();
+                }
+                else if (c instanceof MyNumberField) {
+                    final Object valz = ((MyNumberField)c).getValue();
+                    if (valz instanceof Long) {
+                        final long longVal = (Long) valz;
+                        val = (int) longVal;
+                    }
+                    else {
+                        val = valz;
+                    }
                 }
                 else if (c instanceof MyComboBox) {
                     
