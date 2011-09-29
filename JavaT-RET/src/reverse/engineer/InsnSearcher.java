@@ -21,9 +21,14 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
 
+import reverse.engineer.ClassContainer.CCVisitor;
 import reverse.engineer.searching.LDCSearch;
+import reverse.engineer.searching.RegexSearch;
+import reverse.engineer.searching.SearchResultNotifier;
 import reverse.engineer.searching.SearchTypeDetails;
 
 
@@ -38,6 +43,7 @@ public class InsnSearcher extends VisibleComponent {
     JTree tree;
     
     SearchType searchType = null;
+    JComboBox searchRadiusBox;
     
     public InsnSearcher(final FileChangeNotifier fcn) {
         super("InsnSearcher", true, false, true, true);
@@ -46,25 +52,45 @@ public class InsnSearcher extends VisibleComponent {
         
         final JPanel optionPanel = new JPanel(new GridLayout(4, 1));
         
-        optionPanel.add(new JLabel("Search from all classes"));
+        final JPanel searchOpts = new JPanel(new BorderLayout());
         
-        final DefaultComboBoxModel model = new DefaultComboBoxModel();
+        searchOpts.add(new JLabel("Search from"), BorderLayout.WEST);
+        
+        DefaultComboBoxModel model = new DefaultComboBoxModel();
+        for (final SearchRadius st : SearchRadius.values()) {
+            model.addElement(st);
+        }
+        
+        searchRadiusBox = new JComboBox(model);
+        
+        searchOpts.add(searchRadiusBox, BorderLayout.CENTER);
+        
+        optionPanel.add(searchOpts);
+        
+        model = new DefaultComboBoxModel();
         for (final SearchType st : SearchType.values()) {
-            if (searchType == null) {
-                searchType = st;
-            }
             model.addElement(st);
         }
         
         final JComboBox typeBox = new JComboBox(model);
         final JPanel searchOptPanel = new JPanel();
         
-        typeBox.addItemListener(new ItemListener() {
+        final ItemListener il = new ItemListener() {
             @Override
             public void itemStateChanged(final ItemEvent arg0) {
                 searchOptPanel.removeAll();
+                searchType = (SearchType) typeBox.getSelectedItem();
+                searchOptPanel.add(searchType.details.getPanel());
+
+                searchOptPanel.revalidate();
+                searchOptPanel.repaint();
             }
-        });
+        };
+        
+        typeBox.addItemListener(il);
+        
+        typeBox.setSelectedItem(SearchType.LDC);
+        il.itemStateChanged(null);
         
         optionPanel.add(typeBox);
         optionPanel.add(searchOptPanel);
@@ -74,7 +100,36 @@ public class InsnSearcher extends VisibleComponent {
         search.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent arg0) {
+                treeRoot.removeAllChildren();
                 searchType = (SearchType) typeBox.getSelectedItem();
+                final SearchRadius radius = (SearchRadius) searchRadiusBox.getSelectedItem();
+                final SearchResultNotifier srn = new SearchResultNotifier() {
+                    @Override
+                    public void notifyOfResult(final ClassNode clazz,
+                            final MethodNode method, final AbstractInsnNode insn) {
+                        treeRoot.add(new DefaultMutableTreeNode(clazz.name + "." + method.name));
+                    }
+                };
+                if (radius == SearchRadius.AllClasses) { //  srch from all classes
+                    if (cc != null) {
+                        cc.visit(new CCVisitor() {
+                            @Override
+                            public void visit(final String name, final ClassNode cn) {
+                                
+                                searchType.details.search(cn, srn);
+                                
+                            }
+                        });
+                    }
+                }
+                else if (radius == SearchRadius.CurClass) {
+                    final ClassViewer cv = RETMain.getComponent(WorkPanel.class).getCurrentClass();
+                    if (cv != null) {
+                        searchType.details.search(cv.cn, srn);
+                    }
+                }
+                tree.expandPath(new TreePath(tree.getModel().getRoot()));
+                tree.repaint();
             }
         });
         
@@ -117,13 +172,19 @@ public class InsnSearcher extends VisibleComponent {
     }
     
     public enum SearchType {
-        LDC (new LDCSearch());
+        LDC (new LDCSearch()),
+        Regex (new RegexSearch());
         
         public final SearchTypeDetails details;
         
         SearchType(final SearchTypeDetails details) {
             this.details = details;
         }
+    }
+    
+    public enum SearchRadius {
+        AllClasses,
+        CurClass;
     }
     
 }

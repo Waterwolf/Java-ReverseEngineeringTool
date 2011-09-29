@@ -9,6 +9,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -71,7 +73,7 @@ public class ClassNavigation extends VisibleComponent implements FileDrop.Listen
         fcn.workedFileChanged(name, node);
         System.out.println("Work file changed");
     }
-
+    
     @Override
     public void filesDropped(final File[] files) {
         if (files.length < 1)

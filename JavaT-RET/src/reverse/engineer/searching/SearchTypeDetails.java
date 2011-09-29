@@ -5,7 +5,7 @@ import javax.swing.JPanel;
 import org.objectweb.asm.tree.ClassNode;
 
 public interface SearchTypeDetails {
-    public void putComponents(JPanel panel);
+    public JPanel getPanel();
 
     public void search(ClassNode node, SearchResultNotifier srn);
 }
