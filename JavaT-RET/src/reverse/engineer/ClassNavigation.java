@@ -111,6 +111,7 @@ public class ClassNavigation extends VisibleComponent implements FileDrop.Listen
     
     @Override
     public void workedFileSetChanged(final ClassContainer cc) {
+        FFClassLoader.cc = cc;
         treeRoot.removeAllChildren();
         cc.visit(new CCVisitor() {
             @Override

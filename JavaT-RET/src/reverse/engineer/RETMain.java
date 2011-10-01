@@ -16,9 +16,11 @@ import javax.swing.ToolTipManager;
 
 import org.objectweb.asm.tree.ClassNode;
 
+import reverse.engineer.api.APIPanel;
+
 public class RETMain extends JFrame implements FileChangeNotifier {
     
-    public static final Dimension size = new Dimension(1200, 600);
+    public static final Dimension size = new Dimension(1200, 500);
     static ArrayList<VisibleComponent> rfComps = new ArrayList<VisibleComponent>();
     
     JDesktopPane desktop;
@@ -44,6 +46,7 @@ public class RETMain extends JFrame implements FileChangeNotifier {
         rfComps.add(new ClassNavigation(this));
         rfComps.add(new WorkPanel(this));
         rfComps.add(new InsnSearcher(this));
+        rfComps.add(new APIPanel(this));
         
         int highestY = 0;
         
@@ -54,21 +57,21 @@ public class RETMain extends JFrame implements FileChangeNotifier {
         for (final VisibleComponent vc : rfComps) {
             final Dimension ws = vc.getWantedSize();
             
+            if (compLoc.x+ws.width > usedScreenSize.width) {
+                compLoc.x = 0;
+                compLoc.y = highestY;
+                highestY = 0;
+            }
+            
             vc.setSize(ws);
             vc.setPreferredSize(ws);
             vc.setLocation(compLoc);
             
             highestY = Math.max(highestY, ws.height);
             
-            if (compLoc.x+ws.width > usedScreenSize.width) {
-                compLoc.x = 0;
-                compLoc.y = highestY;
-                highestY = 0;
-            }
-            else {
-                compLoc.x += ws.width;
-            }
+            compLoc.x += ws.width;
             
+            vc.setVisible(true);
             desktop.add(vc);
         }
         

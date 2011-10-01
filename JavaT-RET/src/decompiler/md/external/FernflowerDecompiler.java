@@ -5,17 +5,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-
-import javax.sound.sampled.Line;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 
-import de.fernflower.main.decompiler.ConsoleDecompiler;
+import reverse.engineer.FFClassLoader;
 import decompiler.ClassDecompiler;
 import decompiler.MethodDecompiler;
 
 public class FernflowerDecompiler implements ClassDecompiler {
+    
+    static FFClassLoader fcl = new FFClassLoader();
 
     @Override
     public String get(final MethodDecompiler md, final ClassNode cn) {
@@ -36,7 +38,25 @@ public class FernflowerDecompiler implements ClassDecompiler {
             e.printStackTrace();
         }
         
-        ConsoleDecompiler.main(new String[] {tempClass.getName(), "."});
+        try {
+            final Class<?> consoleDecompiler = fcl.loadClass("de.fernflower.main.decompiler.ConsoleDecompiler");
+            final Method mainMethod = consoleDecompiler.getMethod("main", String[].class);
+            mainMethod.invoke(null, new Object[] {new String[] {tempClass.getName(), "."}});
+        } catch (final ClassNotFoundException e1) {
+            e1.printStackTrace();
+        } catch (final SecurityException e) {
+            e.printStackTrace();
+        } catch (final NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (final IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (final IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (final InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        
+        //ConsoleDecompiler.main(new String[] {tempClass.getName(), "."});
         
         tempClass.delete();
         
@@ -54,7 +74,6 @@ public class FernflowerDecompiler implements ClassDecompiler {
                 }
                 br.close();
             } catch (final IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             

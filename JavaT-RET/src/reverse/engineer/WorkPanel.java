@@ -4,21 +4,16 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.swing.JButton;
-import javax.swing.JEditorPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -26,14 +21,6 @@ import javax.swing.event.ChangeListener;
 import jsyntaxpane.DefaultSyntaxKit;
 
 import org.objectweb.asm.tree.ClassNode;
-
-import decompiler.ClassDecompiler;
-import decompiler.MethodDecompiler;
-import decompiler.md.BytecodeDecompiler;
-import decompiler.md.ClassDecompilerImpl;
-import decompiler.md.MethodDecompilerImpl;
-import decompiler.md.external.FernflowerDecompiler;
-import decompiler.md.external.JadDecompiler;
 
 
 public class WorkPanel extends VisibleComponent implements ActionListener {
@@ -48,11 +35,24 @@ public class WorkPanel extends VisibleComponent implements ActionListener {
     
     ArrayList<String> workingOn = new ArrayList<String>();
     
+    public static int SyntaxFontHeight = 12;
+    
     public WorkPanel(final FileChangeNotifier fcn) {
         super("WorkPanel", true, false, true, true);
         
         if (Settings.SYNTAX_HIGHLIGHT_TYPE != Settings.SyntaxHighlightType.None) {
             DefaultSyntaxKit.initKit();
+            Font defFont = null;
+            try {
+                final Field defFontField = DefaultSyntaxKit.class.getDeclaredField("DEFAULT_FONT");
+                defFontField.setAccessible(true);
+                defFont = (Font) defFontField.get(null);
+            }
+            catch (final Exception e) {
+                e.printStackTrace();
+            }
+            SyntaxFontHeight = defFont.getSize();
+            System.out.println("Default syntax highlight font " + defFont);
         }
         
         this.tabs = new JTabbedPane();
