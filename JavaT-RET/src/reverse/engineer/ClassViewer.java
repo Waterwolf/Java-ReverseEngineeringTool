@@ -94,7 +94,44 @@ public class ClassViewer extends JPanel implements Runnable {
                         
                         dcScroll.getVerticalScrollBar().setValue(
                                 curMd.srcLN * 22);*/
-                        dcScroll.getVerticalScrollBar().setValue(arg0.getValue());
+                        
+                        switch (Settings.SCROLLING_TYPE) {
+                        case Absolute:
+                            dcScroll.getVerticalScrollBar().setValue(arg0.getValue());
+                            break;
+                        case Relative:
+                            final int decompHeight = decomp.getPreferredSize().height;
+                            final int bytecodeHeight = bytecode.getPreferredSize().height;
+                            
+                            final float scrollMultiplier = (float) decompHeight / bytecodeHeight;
+                            
+                            dcScroll.getVerticalScrollBar().setValue((int) (arg0.getValue() * scrollMultiplier));
+                            break;
+                        case Synchronized:
+                            
+                            final int curBcLine = arg0.getValue()/22;
+                            
+                            MethodData curMd = lnData.get(lnData.size()-1);
+                            
+                            for (final MethodData md : lnData) {
+                                if (md.bytecodeLN > curBcLine) {
+                                    curMd = md;
+                                    break;
+                                }
+                            }
+                            
+                            
+                            //System.out.println("We're approximately in method " +curMd.name);
+                            //System.out.println("We're in row " + curBcLine);
+                            
+                            dcScroll.getVerticalScrollBar().setValue(
+                                    curMd.srcLN * 22);
+                            
+                            break;
+                        }
+                        
+                        //System.out.println(dcScroll.getHeight() + "d c height");
+                        //
                         //System.out.println("Scrolling to " + arg0.getValue());
                     }
                 });
@@ -122,7 +159,7 @@ public class ClassViewer extends JPanel implements Runnable {
         bytecode.setText("Working..");
         decomp.setText("Working..");
 
-        // decompilerThreadPool.submit(this);
+         //decompilerThreadPool.submit(this);
         run();
 
     }

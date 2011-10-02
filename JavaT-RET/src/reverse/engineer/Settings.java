@@ -37,6 +37,9 @@ public class Settings {
     @Changeable(name = "Highlight syntax", shortName = "highlightSyntax", desc = "Select syntaxes to highlight. More syntaxes make code easier to read but also slow down the program.", reqRestart = true)
     public static SyntaxHighlightType SYNTAX_HIGHLIGHT_TYPE = SyntaxHighlightType.Decompilation;
     
+    @Changeable(name = "Scrolling type", shortName = "scrollingType", desc = "Determines how side by side code view scrolling is synchronized")
+    public static SideBySideScrollingType SCROLLING_TYPE = SideBySideScrollingType.Absolute;
+    
     public static void loadProps() throws IOException {
         if (propertiesFile.exists()) {
             final Properties props = new Properties();
@@ -199,5 +202,9 @@ public class Settings {
     
     public enum SyntaxHighlightType {
         None, Bytecode, Decompilation, All
+    }
+    
+    public enum SideBySideScrollingType {
+        Absolute, Relative, Synchronized
     }
 }

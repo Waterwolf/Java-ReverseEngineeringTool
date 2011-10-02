@@ -39,6 +39,7 @@ public class SettingsGui extends JFrame implements ActionListener {
     public SettingsGui() {
         this.setSize(size);
         this.setPreferredSize(size);
+        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         final ArrayList<Field> settingFields = new ArrayList<Field>();
 

@@ -30,7 +30,8 @@ import reverse.engineer.ClassContainer;
 import reverse.engineer.ClassContainer.CCVisitor;
 import reverse.engineer.FileChangeNotifier;
 import reverse.engineer.VisibleComponent;
-import reverse.engineer.api.test.ZKMStringDecryption;
+import reverse.engineer.api.builtin.MaliciousCodeAnalysis;
+import reverse.engineer.api.builtin.ZKMStringDecryption;
 
 
 public class APIPanel extends VisibleComponent implements ActionListener, LogNotifier {
@@ -40,7 +41,8 @@ public class APIPanel extends VisibleComponent implements ActionListener, LogNot
     private static final ExecutorService pluginRunner = Executors.newFixedThreadPool(1);
     
     private static final Object[] defaultPlugins = new Object[] {
-        new ZKMStringDecryption()
+        new ZKMStringDecryption(),
+        new MaliciousCodeAnalysis()
     };
     
     ClassContainer cc;

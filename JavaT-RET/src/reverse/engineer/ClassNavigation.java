@@ -1,8 +1,13 @@
 package reverse.engineer;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -14,6 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -42,8 +48,10 @@ public class ClassNavigation extends VisibleComponent implements FileDrop.Listen
         
         this.fcn = fcn;
         
+        this.setLayout(new BorderLayout());
+        
         this.tree = new MyTree(treeRoot);
-        add(new JScrollPane(tree));
+        add(new JScrollPane(tree), BorderLayout.CENTER);
         
         this.tree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
@@ -64,6 +72,75 @@ public class ClassNavigation extends VisibleComponent implements FileDrop.Listen
                 }
             }
         });
+        
+        final String quickSearchText = "Quick class search";
+        
+        final JTextField quickSearch = new JTextField(quickSearchText);
+        quickSearch.setForeground(Color.gray);
+        quickSearch.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(final KeyEvent ke) {
+                if (ke.getKeyCode() == KeyEvent.VK_ENTER) {
+                    
+                    final String qt = quickSearch.getText();
+                    quickSearch.setText("");
+                    
+                    String[] path = null;
+                    
+                    if (qt.contains(".")) {
+                        path = qt.split("\\.");
+                    }
+                    else {
+                        path = new String[] {qt};
+                    }
+                    
+                    MyTreeNode curNode = treeRoot;
+                    pathLoop:
+                    for (int i = 0;i < path.length; i++) {
+                        final String pathName = path[i];
+                        final boolean isLast = i == path.length-1;
+                        
+                        for (int c = 0; c < curNode.getChildCount(); c++) {
+                            final MyTreeNode child = (MyTreeNode) curNode.getChildAt(c);
+                            if (child.getUserObject().equals(pathName)) {
+                                curNode = child;
+                                if (isLast) {
+                                    final TreePath pathn = new TreePath(curNode.getPath());
+                                    tree.setSelectionPath(pathn);
+                                    tree.makeVisible(pathn);
+                                    tree.scrollPathToVisible(pathn);
+                                    System.out.println("Found! " + curNode);
+                                    break pathLoop;
+                                }
+                                continue pathLoop;
+                            }
+                        }
+                        
+                        System.out.println("Got stuck at " + pathName);
+                        break;
+                    }
+                    
+                }
+            }
+        });
+        quickSearch.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(final FocusEvent arg0) {
+                if (quickSearch.getText().equals(quickSearchText)) {
+                    quickSearch.setText("");
+                    quickSearch.setForeground(Color.black);
+                }
+            }
+            @Override
+            public void focusLost(final FocusEvent arg0) {
+                if (quickSearch.getText().isEmpty()) {
+                    quickSearch.setText(quickSearchText);
+                    quickSearch.setForeground(Color.gray);
+                }
+            }
+        });
+        
+        this.add(quickSearch, BorderLayout.SOUTH);
         
         this.setVisible(true);
         
