@@ -26,7 +26,9 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import reverse.engineer.ClassContainer.CCVisitor;
+import reverse.engineer.searching.FieldCallSearch;
 import reverse.engineer.searching.LDCSearch;
+import reverse.engineer.searching.MethodCallSearch;
 import reverse.engineer.searching.RegexSearch;
 import reverse.engineer.searching.SearchResultNotifier;
 import reverse.engineer.searching.SearchTypeDetails;
@@ -50,11 +52,13 @@ public class InsnSearcher extends VisibleComponent {
         
         this.fcn = fcn;
         
-        final JPanel optionPanel = new JPanel(new GridLayout(4, 1));
+        final JPanel optionPanel = new JPanel(new BorderLayout());
         
-        final JPanel searchOpts = new JPanel(new BorderLayout());
+        final JPanel searchRadiusOpt = new JPanel(new BorderLayout());
         
-        searchOpts.add(new JLabel("Search from"), BorderLayout.WEST);
+        final JPanel searchOpts = new JPanel(new GridLayout(2, 1));
+        
+        searchRadiusOpt.add(new JLabel("Search from"), BorderLayout.WEST);
         
         DefaultComboBoxModel model = new DefaultComboBoxModel();
         for (final SearchRadius st : SearchRadius.values()) {
@@ -63,9 +67,9 @@ public class InsnSearcher extends VisibleComponent {
         
         searchRadiusBox = new JComboBox(model);
         
-        searchOpts.add(searchRadiusBox, BorderLayout.CENTER);
+        searchRadiusOpt.add(searchRadiusBox, BorderLayout.CENTER);
         
-        optionPanel.add(searchOpts);
+        searchOpts.add(searchRadiusOpt);
         
         model = new DefaultComboBoxModel();
         for (final SearchType st : SearchType.values()) {
@@ -92,8 +96,11 @@ public class InsnSearcher extends VisibleComponent {
         typeBox.setSelectedItem(SearchType.LDC);
         il.itemStateChanged(null);
         
-        optionPanel.add(typeBox);
-        optionPanel.add(searchOptPanel);
+        searchOpts.add(typeBox);
+        
+        optionPanel.add(searchOpts, BorderLayout.NORTH);
+        
+        optionPanel.add(searchOptPanel, BorderLayout.CENTER);
         
         final JButton search = new JButton("Search");
         
@@ -133,7 +140,7 @@ public class InsnSearcher extends VisibleComponent {
             }
         });
         
-        optionPanel.add(search);
+        optionPanel.add(search, BorderLayout.SOUTH);
         
         this.tree = new JTree(treeRoot);
         
@@ -173,7 +180,9 @@ public class InsnSearcher extends VisibleComponent {
     
     public enum SearchType {
         LDC (new LDCSearch()),
-        Regex (new RegexSearch());
+        Regex (new RegexSearch()),
+        MethodCall (new MethodCallSearch()),
+        FieldCall (new FieldCallSearch());
         
         public final SearchTypeDetails details;
         

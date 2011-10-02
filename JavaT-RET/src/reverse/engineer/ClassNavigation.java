@@ -7,16 +7,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Iterator;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
@@ -32,7 +34,7 @@ public class ClassNavigation extends VisibleComponent implements FileDrop.Listen
     FileChangeNotifier fcn;
     ClassContainer cc = null;
     
-    DefaultMutableTreeNode treeRoot = new DefaultMutableTreeNode("Root");
+    MyTreeNode treeRoot = new MyTreeNode("Root");
     MyTree tree;
     
     public ClassNavigation(final FileChangeNotifier fcn) {
@@ -118,20 +120,20 @@ public class ClassNavigation extends VisibleComponent implements FileDrop.Listen
             public void visit(final String name, final ClassNode cn) {
                 final String[] spl = name.split("\\/");
                 if (spl.length < 2) {
-                    treeRoot.add(new DefaultMutableTreeNode(name));
+                    treeRoot.add(new MyTreeNode(name));
                 }
                 else {
-                    DefaultMutableTreeNode parent = treeRoot;
+                    MyTreeNode parent = treeRoot;
                     for (final String s : spl) {
-                        DefaultMutableTreeNode child = null;
+                        MyTreeNode child = null;
                         for (int i = 0;i < parent.getChildCount(); i++) {
-                            if (((DefaultMutableTreeNode) parent.getChildAt(i)).getUserObject().equals(s)) {
-                                child = (DefaultMutableTreeNode) parent.getChildAt(i);
+                            if (((MyTreeNode) parent.getChildAt(i)).getUserObject().equals(s)) {
+                                child = (MyTreeNode) parent.getChildAt(i);
                                 break;
                             }
                         }
                         if (child == null) {
-                            child = new DefaultMutableTreeNode(s);
+                            child = new MyTreeNode(s);
                             parent.add(child);
                         }
                         parent = child;
@@ -139,6 +141,7 @@ public class ClassNavigation extends VisibleComponent implements FileDrop.Listen
                 }
             }
         });
+        treeRoot.sort();
         tree.expandPath(new TreePath(tree.getModel().getRoot()));
         //expandAll(tree, true);
     }
@@ -191,7 +194,54 @@ public class ClassNavigation extends VisibleComponent implements FileDrop.Listen
                 g.drawString("Drag class/jar here", 10, 100);
             }
         }
+    }
+    
+    public class MyTreeNode extends DefaultMutableTreeNode {
         
+        public MyTreeNode(final Object o) {
+            super(o);
+        }
+        
+        @Override
+        public void insert(final MutableTreeNode newChild, final int childIndex)    {
+            super.insert(newChild, childIndex);
+        }
+        
+        public void sort() {
+            recursiveSort(this);
+        }
+        
+        private void recursiveSort(final MyTreeNode node) {
+            Collections.sort(node.children, nodeComparator);
+            final Iterator<MyTreeNode> it = node.children.iterator();
+            while (it.hasNext()) {
+                final MyTreeNode nextNode = it.next();
+                if (nextNode.getChildCount() > 0) {
+                    recursiveSort(nextNode);
+                }
+            }
+        }
+         
+        protected Comparator<MyTreeNode> nodeComparator = new Comparator<MyTreeNode> () {
+            @Override
+            public int compare(final MyTreeNode o1, final MyTreeNode o2) {
+                // To make sure nodes with children are always on top
+                final int firstOffset = o1.getChildCount() > 0 ? -1000 : 0;
+                final int secondOffset = o2.getChildCount() > 0 ? 1000 : 0;
+                return o1.toString().compareToIgnoreCase(o2.toString()) + firstOffset + secondOffset;
+            }
+         
+            @Override
+            public boolean equals(final Object obj)    {
+                return false;
+            }
+         
+            @Override
+            public int hashCode() {
+                final int hash = 7;
+                return hash;
+            }
+        };
     }
 
     @Override
